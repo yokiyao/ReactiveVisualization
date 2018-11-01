@@ -54,7 +54,7 @@ boolean COLLISION_DETECTION        = true;
 
 //velocity setting
 float biggerVelocity = 1.2f;
-float normalVelocity = 0.95f;
+float normalVelocity = 0.6f;
 
 
 //osc
@@ -78,15 +78,17 @@ public void setup() {
   particlesystem = new ParticleSystem(this, width, height);
 
   // set some parameters
-  particlesystem.PARTICLE_COUNT              = 6000;
-  particlesystem.PARTICLE_SCREEN_FILL_FACTOR = 1.1f;
+  particlesystem.PARTICLE_NUM_X = 100;
+  particlesystem.PARTICLE_NUM_Y = 60;
+  particlesystem.PARTICLE_COUNT              = particlesystem.PARTICLE_NUM_X * particlesystem.PARTICLE_NUM_Y;
+  particlesystem.PARTICLE_SCREEN_FILL_FACTOR = 0.5f;
   particlesystem.PARTICLE_SHAPE_IDX          = 4;
   particlesystem.normal_Dvelocity = normalVelocity;
-  particlesystem.MULT_GRAVITY                =0f;
+  particlesystem.MULT_GRAVITY                =0.98f;
 
   particlesystem.particle_param.DAMP_BOUNDS    = 0.9f;
-  particlesystem.particle_param.DAMP_COLLISION = 1;
-  //particlesystem.particle_param.DAMP_VELOCITY  = 0.95f;
+  particlesystem.particle_param.DAMP_COLLISION = 0.6;
+  //particlesystem.particle_param.DAMP_VELOCITY  = normalVelocity;
 
   physics = new DwPhysics<CustomVerletParticle2D>(param_physics);
   param_physics.GRAVITY = new float[]{0, 0.1f};
@@ -364,8 +366,8 @@ void drawConnections(){
        particlesystem.particles[n].setRadius(conRadius[i]);
        particlesystem.particles[n].enableCollisions(false);
        particlesystem.particles[n].isOccupied = true;
-       return;
-     }
+     //  return;
+    }
      else{
        particlesystem.particles[n].setRadius(particlesystem.passRadius);
        particlesystem.particles[n].enableCollisions(true);

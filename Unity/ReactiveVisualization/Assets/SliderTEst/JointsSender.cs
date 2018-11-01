@@ -69,7 +69,7 @@ public class JointsSender : MonoBehaviour
     void Update()
     {
 
-        //slider_a[0].y.value = slider_b[1].y.value = slider_a[1].y.value = controlSlider.value; 
+        //slider_a[0].y.value = slider_b[1].y.value  = controlSlider.value; 
 
         //mouseF();
         //slider_1_x_Value = slider_1_x.value;

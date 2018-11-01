@@ -14,15 +14,23 @@ static class CustomVerletParticle2D extends DwParticle2D{
   }
 
   private final float[] rgb = new float[3];
-    
-  protected final float[][] PALLETTE = {
-    { 30,  60,  110},    
-    { 50, 80, 120}, 
-    { 130, 208, 255},
+   
+  //protected final float[][] PALLETTE = {
+  //  { 30,  60,  110},    
+  //  { 50, 80, 120}, 
+  //  { 130, 208, 255},
+  //};
+  
+    protected final float[][] PALLETTE = {
+    { 50,  80,  130},    
+    { 100, 178, 255}, 
+    { 255, 120, 50},
   };
   
   public boolean isOccupied;
-
+  public float initialPosX;
+  public float initialPosY;
+  
   @Override
   public void updateShapeColor(){
 
@@ -56,7 +64,7 @@ static class CustomVerletParticle2D extends DwParticle2D{
       setColor(col);
     }
     else{
-      setColor(0xFFFFFFFF);
+      setColor(0xFF000000);
     }
     
     
@@ -79,7 +87,7 @@ static class CustomVerletParticle2D extends DwParticle2D{
   }
    
   
-  public float DAMP_VELOCITY = 0.95f;
+  public float DAMP_VELOCITY = 0.4f;
   
   @Override
   public void updatePosition(float timestep) {
