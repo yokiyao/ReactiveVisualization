@@ -54,7 +54,7 @@ boolean COLLISION_DETECTION        = true;
 
 //velocity setting
 float biggerVelocity = 1.2f;
-float normalVelocity = 0.8f;
+float normalVelocity = 0.95f;
 
 
 //osc
@@ -67,7 +67,6 @@ public void settings() {
 }
 
 public void setup() {
- 
   surface.setLocation(viewport_x, viewport_y);
 
   // main library context
@@ -79,17 +78,15 @@ public void setup() {
   particlesystem = new ParticleSystem(this, width, height);
 
   // set some parameters
-  particlesystem.PARTICLE_NUM_X = 100;
-  particlesystem.PARTICLE_NUM_Y = 60;
-  particlesystem.PARTICLE_COUNT              = particlesystem.PARTICLE_NUM_X * particlesystem.PARTICLE_NUM_Y;
-  particlesystem.PARTICLE_SCREEN_FILL_FACTOR = 0.5f;
+  particlesystem.PARTICLE_COUNT              = 6000;
+  particlesystem.PARTICLE_SCREEN_FILL_FACTOR = 1.1f;
   particlesystem.PARTICLE_SHAPE_IDX          = 4;
   particlesystem.normal_Dvelocity = normalVelocity;
-  particlesystem.MULT_GRAVITY                =0.98f;
+  particlesystem.MULT_GRAVITY                =0f;
 
   particlesystem.particle_param.DAMP_BOUNDS    = 0.9f;
-  particlesystem.particle_param.DAMP_COLLISION = 0.6;
-  //particlesystem.particle_param.DAMP_VELOCITY  = normalVelocity;
+  particlesystem.particle_param.DAMP_COLLISION = 1;
+  //particlesystem.particle_param.DAMP_VELOCITY  = 0.95f;
 
   physics = new DwPhysics<CustomVerletParticle2D>(param_physics);
   param_physics.GRAVITY = new float[]{0, 0.1f};
@@ -119,6 +116,7 @@ public void setup() {
   distance = new float[]{};
   curOSCPos_x = new float[]{};
   curOSCPos_y = new float[]{};
+  
 
   
 }
@@ -235,7 +233,7 @@ void addBiggerVeloctiyToParticles(boolean add) {
 /////////////////////////////// create a circle collider ////////////////////////////////
 ArrayList <CustomVerletParticle2D> circleColliders = new ArrayList<CustomVerletParticle2D>();
 
-void createParticleInCircle(float posx, float posy) {
+void createParticleInCircle(float posx, float posy, boolean add) {
 
   // just in case, to avoid position conflicts
   posx += random(-0.01f, +0.01f);
@@ -291,7 +289,7 @@ public void draw() {
   if (mousePressed && mouseButton == LEFT && !alreadyAdd) {
     alreadyAdd = true;
     addBiggerVeloctiyToParticles(true);
-    createParticleInCircle(mouseX, mouseY);
+    createParticleInCircle(mouseX, mouseY, true);
   }
   
   
@@ -335,13 +333,9 @@ public void draw() {
   // info
   String txt_fps = String.format(getClass().getName()+ "   [size %d/%d]   [frame %d]   [fps %6.2f]", width, height, frameCount, frameRate);
   surface.setTitle(txt_fps);
-  
-  
-  
 }
 
 //////////////////////////////////////draw connections between two points //////////////////////////
-
 
 int segmentNum = 8;
 
@@ -439,7 +433,6 @@ void drawConnections(){
   
 }
 
-
 public void activateCollisionDetection(float[] val) {
   COLLISION_DETECTION = (val[0] > 0);
 }
@@ -531,15 +524,12 @@ public void createGUI() {
 
 ////////////////////////////////////////////// OSC ////////////////////////////////////////////
 
-
 float OSCupdateX = width/2;
 float OSCupdateY = height/2;
 int groupNum = 3;
 float[] osc_grpA_x, osc_grpA_y, osc_grpB_x, osc_grpB_y;
 //float[] grpA_x, grpA_y, grpB_x, grpB_y;
 float[] preOSCPos_x, preOSCPos_y, curOSCPos_x, curOSCPos_y;
-
-
 
 /* incoming osc message are forwarded to the oscEvent method. */
 void oscEvent(OscMessage theOscMessage) {

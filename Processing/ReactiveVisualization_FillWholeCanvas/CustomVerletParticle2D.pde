@@ -14,30 +14,22 @@ static class CustomVerletParticle2D extends DwParticle2D{
   }
 
   private final float[] rgb = new float[3];
-   
-  //protected final float[][] PALLETTE = {
-  //  { 30,  60,  110},    
-  //  { 50, 80, 120}, 
-  //  { 130, 208, 255},
-  //};
-  
-    protected final float[][] PALLETTE = {
-    { 50,  80,  130},    
-    { 100, 178, 255}, 
-    { 255, 120, 50},
+    
+  protected final float[][] PALLETTE = {
+    { 30,  60,  110},    
+    { 50, 80, 120}, 
+    { 130, 208, 255},
   };
   
   public boolean isOccupied;
-  public float initialPosX;
-  public float initialPosY;
-  
+
   @Override
   public void updateShapeColor(){
 
     float vel  = getVelocity();
     float radn = 1.1f * rad / MAX_RAD;
     
-    float val = vel/1;
+    float val = vel/3;
     //getShading(val, rgb);
     
     //my own getShading
@@ -69,17 +61,15 @@ static class CustomVerletParticle2D extends DwParticle2D{
     
     
     //if (idx == 0){
-    //  setColor(0xFF00FFFF);
+    //  setColor(0xFFFFFFFF);
     //}
     
     //if (idx == 1 || idx == 2 || idx == 3 || idx == 4) setColor(0xFFFFFF00);
     
-    //if (idx < 27) setColor(0xFFFF0000);
+    //if (idx < 12) setColor(0xFFFF0000);
     
     //if (idx == 5) setColor(0xFFFFFFFF);
     //if (idx == 6) setColor(0xFFFFFF00);
-    
-    
     
     //this not working dunno why
     //if (idx > 6000){
@@ -89,7 +79,7 @@ static class CustomVerletParticle2D extends DwParticle2D{
   }
    
   
-  public float DAMP_VELOCITY = 0.4f;
+  public float DAMP_VELOCITY = 0.95f;
   
   @Override
   public void updatePosition(float timestep) {

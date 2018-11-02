@@ -27,7 +27,8 @@ public class JointsSender : MonoBehaviour
     float slider_2_y_Value;
 
     int isCorrectGesture = 0;
-    int groupNum = 2;
+    public int groupNum = 2;
+    public Toggle isDetected;
     [Serializable]
     public struct JointSlider
     {
@@ -51,6 +52,8 @@ public class JointsSender : MonoBehaviour
         //slider_1_y_Value = slider_1_y.value;
         //slider_2_x_Value = slider_2_x.value;
         //slider_2_y_Value = slider_2_y.value;
+        //QualitySettings.vSyncCount = 0;
+        //Application.targetFrameRate = 30;
     }
 
 
@@ -68,7 +71,7 @@ public class JointsSender : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        //Debug.Log(1 / Time.deltaTime);
         //slider_a[0].y.value = slider_b[1].y.value  = controlSlider.value; 
 
         //mouseF();
@@ -88,12 +91,27 @@ public class JointsSender : MonoBehaviour
 
 
         //a group of joints
-        for (int i = 0; i < groupNum; i++)
+        if (isDetected.isOn)
         {
-            message.values.Add(slider_a[i].x.value);
-            message.values.Add(slider_a[i].y.value);
-            message.values.Add(slider_b[i].x.value);
-            message.values.Add(slider_b[i].y.value);
+            for (int i = 0; i < groupNum; i++)
+            {
+                message.values.Add(slider_a[i].x.value);
+                message.values.Add(slider_a[i].y.value);
+                message.values.Add(slider_b[i].x.value);
+                message.values.Add(slider_b[i].y.value);
+            }
+
+        }
+        else
+        {
+            for (int i = 0; i < groupNum; i++)
+            {
+                message.values.Add(0);
+                message.values.Add(0);
+                message.values.Add(0);
+                message.values.Add(0);
+            }
+
         }
 
         //message.values.Add(slider_A_x.value);

@@ -25,9 +25,6 @@ static public class ParticleSystem {
   public float PARTICLE_SCREEN_FILL_FACTOR = 0.9f;
   public int   PARTICLE_COUNT              = 500;
   public int   PARTICLE_SHAPE_IDX          = 1;
-  
-  public int PARTICLE_NUM_X = 20;
-  public int PARTICLE_NUM_Y = 20;
 
   // particle behavior
   public float MULT_FLUID    = 0.50f;
@@ -51,18 +48,13 @@ static public class ParticleSystem {
   }
 
 
-  public void setParticleCount(int numX, int numY) {
-    int count = numX * numY;
+  public void setParticleCount(int count) {
     if ( count == PARTICLE_COUNT && particles != null &&  particles.length == PARTICLE_COUNT) {
       return;
     }
     PARTICLE_COUNT = count;
-    PARTICLE_NUM_X = numX;
-    PARTICLE_NUM_Y = numY;
     initParticles();
   }
-  
-  
 
   public void setFillFactor(float screen_fill_factor) {
     if (screen_fill_factor == PARTICLE_SCREEN_FILL_FACTOR) {
@@ -107,11 +99,9 @@ static public class ParticleSystem {
     CustomVerletParticle2D.MAX_RAD = r_max;
     papplet.randomSeed(0);
     for (int i = 0; i < PARTICLE_COUNT; i++) {
-      //float pr = papplet.random(r_min, r_max);
-      float pr = (r_min + r_max) /2;
+      float pr = papplet.random(r_min, r_max);
       passRadius = pr;
       particles[i].setRadius(pr);
-      particles[i].setRadiusCollision(pr * 2);
       particles[i].setMass(r_max*r_max/(pr*pr) );
     }
 
@@ -119,25 +109,12 @@ static public class ParticleSystem {
   }
 
   public void initParticlesPosition() {
-    //papplet.randomSeed(0);
-    //for (int i = 0; i < PARTICLE_COUNT; i++) {
-    //  float px = papplet.random(0, size_x - 1);
-    //  float py = papplet.random(0, size_y - 1);
-    //  particles[i].setPosition(px, py);
-    //}
-    
-    for (int i = 0; i < PARTICLE_NUM_X; i++){
-      for (int j = 0; j < PARTICLE_NUM_Y; j++){
-       int num = i + j * PARTICLE_NUM_X;
-       float x = i * (size_x - passRadius) / (PARTICLE_NUM_X - 1) + passRadius;
-       float y = j * (size_y - passRadius) / (PARTICLE_NUM_Y - 1) + passRadius;
-       particles[num].setPosition(x, y);
-       particles[num].initialPosX = x;
-       particles[num].initialPosY = y;
-       
-      }
+    papplet.randomSeed(0);
+    for (int i = 0; i < PARTICLE_COUNT; i++) {
+      float px = papplet.random(0, size_x - 1);
+      float py = papplet.random(0, size_y - 1);
+      particles[i].setPosition(px, py);
     }
-    
   }
 
   public void initParticleShapes() {
@@ -184,7 +161,6 @@ static public class ParticleSystem {
       for (int i = 0; i < num_vtx; i++) {
         float vx = (float) Math.cos(i * 2*Math.PI/num_vtx) * 1;
         float vy = (float) Math.sin(i * 2*Math.PI/num_vtx) * 1;
-        circle.vertex(vx, vy);
 
       }
       circle.endShape(PConstants.CLOSE);

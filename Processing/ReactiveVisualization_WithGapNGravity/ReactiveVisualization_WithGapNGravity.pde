@@ -88,7 +88,7 @@ public void setup() {
   particlesystem.MULT_GRAVITY                =0.98f;
 
   particlesystem.particle_param.DAMP_BOUNDS    = 0.9f;
-  particlesystem.particle_param.DAMP_COLLISION = 0.6;
+  particlesystem.particle_param.DAMP_COLLISION = 0.9;
   //particlesystem.particle_param.DAMP_VELOCITY  = normalVelocity;
 
   physics = new DwPhysics<CustomVerletParticle2D>(param_physics);

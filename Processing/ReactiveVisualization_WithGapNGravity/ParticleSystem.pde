@@ -111,7 +111,7 @@ static public class ParticleSystem {
       float pr = (r_min + r_max) /2;
       passRadius = pr;
       particles[i].setRadius(pr);
-      particles[i].setRadiusCollision(pr * 2);
+      particles[i].setRadiusCollision(pr * 1.8);
       particles[i].setMass(r_max*r_max/(pr*pr) );
     }
 
