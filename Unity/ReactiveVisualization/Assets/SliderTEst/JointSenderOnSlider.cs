@@ -2,35 +2,56 @@
 using System.Collections;
 using UnityEngine.UI;
 using System;
-public class JointsSender : MonoBehaviour
+public class JointSenderOnSlider : MonoBehaviour
 {
 
     public OSC osc;
-    public NativeAvatar avatar;
-    Vector3[] startingGroup;
-    Vector3[] endingGroup;
+    //public Slider slider;
+    //public Slider slider2;
 
+    //public Slider slider_A_x;
+    //public Slider slider_A_y;
+    //public Slider slider_B_x;
+    //public Slider slider_B_y;
+    //public Slider slider_C_x;
+    //public Slider slider_C_y;
+
+    //public Slider[] slider_a_x;
+    //public Slider[] slider_a_y;
+    //public Slider[] slider_b_x;
+    //public Slider[] slider_b_y;
+
+    float slider_1_x_Value;
+    float slider_1_y_Value;
+    float slider_2_x_Value;
+    float slider_2_y_Value;
 
     int isCorrectGesture = 0;
     public int groupNum = 2;
-    //public Toggle isDetected;
-    //[Serializable]
-    //public struct JointSlider
-    //{
-    //    public Slider x;
-    //    public Slider y;
-    //}
+    public Toggle isDetected;
+    [Serializable]
+    public struct JointSlider
+    {
+        public Slider x;
+        public Slider y;
+    }
 
-    //public Slider controlSlider;
-    //public JointSlider[] slider_a;
+    public Slider controlSlider;
+    public JointSlider[] slider_a;
 
-    //public JointSlider[] slider_b;
+    public JointSlider[] slider_b;
 
     // Use this for initialization
     void Start()
     {
-        startingGroup = new Vector3[groupNum];
-        endingGroup = new Vector3[groupNum];
+        //slider_a_x = new Slider[groupNum];
+        //slider_a_y = new Slider[groupNum];
+        //slider_b_x = new Slider[groupNum];
+        //slider_b_y = new Slider[groupNum];
+        //slider_1_x_Value = slider_1_x.value;
+        //slider_1_y_Value = slider_1_y.value;
+        //slider_2_x_Value = slider_2_x.value;
+        //slider_2_y_Value = slider_2_y.value;
         //QualitySettings.vSyncCount = 0;
         //Application.targetFrameRate = 30;
     }
@@ -51,21 +72,33 @@ public class JointsSender : MonoBehaviour
     void Update()
     {
         //Debug.Log(1 / Time.deltaTime);
+        //slider_a[0].y.value = slider_b[1].y.value  = controlSlider.value; 
+
+        //mouseF();
+        //slider_1_x_Value = slider_1_x.value;
+        //slider_1_y_Value = slider_1_y.value;
+        //slider_2_x_Value = slider_2_x.value;
+        //slider_2_y_Value = slider_2_y.value;
 
         OscMessage message = new OscMessage();
 
+
         message.address = "/test";
+        //message.values.Add(isCorrectGesture);
+        //message.values.Add(slider.value);
+
+
+
+
         //a group of joints
-        if (avatar.userTracked != 0)
+        if (isDetected.isOn)
         {
             for (int i = 0; i < groupNum; i++)
             {
-                
-                message.values.Add(avatar.jointPositions[i * 2].x);
-                message.values.Add(avatar.jointPositions[i * 2].y);
-                message.values.Add(avatar.jointPositions[i * 2 + 1].x);
-                message.values.Add(avatar.jointPositions[i * 2 + 1].y);
-                
+                message.values.Add(slider_a[i].x.value);
+                message.values.Add(slider_a[i].y.value);
+                message.values.Add(slider_b[i].x.value);
+                message.values.Add(slider_b[i].y.value);
             }
 
         }

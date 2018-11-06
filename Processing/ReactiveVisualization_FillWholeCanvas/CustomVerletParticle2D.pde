@@ -60,8 +60,8 @@ static class CustomVerletParticle2D extends DwParticle2D{
     }
     
     
-    //if (idx == 0){
-    //  setColor(0xFFFFFFFF);
+    //if (idx < 252){
+    //  setColor(0xFF000000);
     //}
     
     //if (idx == 1 || idx == 2 || idx == 3 || idx == 4) setColor(0xFFFFFF00);

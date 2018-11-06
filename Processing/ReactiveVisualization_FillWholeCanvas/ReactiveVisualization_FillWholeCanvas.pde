@@ -375,7 +375,7 @@ void drawConnections(){
         prevF = frameCount;
 
        }
-       else if ((abs(preOSCPos_x[n] - curOSCPos_x[n]) == 0 && abs(preOSCPos_y[n] - curOSCPos_y[n]) == 0 ) && !enter){
+       else if ((abs(preOSCPos_x[n] - curOSCPos_x[n]) < 10 && abs(preOSCPos_y[n] - curOSCPos_y[n]) < 10 ) && !enter){
         
         particlesystem.particles[n].setRadius(particlesystem.passRadius);
         particlesystem.particles[n].enableCollisions(true);
@@ -526,7 +526,7 @@ public void createGUI() {
 
 float OSCupdateX = width/2;
 float OSCupdateY = height/2;
-int groupNum = 3;
+int groupNum = 14;
 float[] osc_grpA_x, osc_grpA_y, osc_grpB_x, osc_grpB_y;
 //float[] grpA_x, grpA_y, grpB_x, grpB_y;
 float[] preOSCPos_x, preOSCPos_y, curOSCPos_x, curOSCPos_y;
@@ -577,10 +577,10 @@ void oscEvent(OscMessage theOscMessage) {
        
         //getting value from oscmessage
         if (theOscMessage.get(1).floatValue() != 0){
-          osc_grpA_x[i] = theOscMessage.get(i*4).floatValue();
-          osc_grpA_y[i] = theOscMessage.get(i*4+1).floatValue();       
-          osc_grpB_x[i] = theOscMessage.get(i*4+2).floatValue();
-          osc_grpB_y[i] = theOscMessage.get(i*4+3).floatValue(); 
+          osc_grpA_x[i] = (theOscMessage.get(i*4).floatValue()* width)  ;
+          osc_grpA_y[i] = ((1- theOscMessage.get(i*4+1).floatValue()) *  height );       
+          osc_grpB_x[i] = (theOscMessage.get(i*4+2).floatValue()* width) ;
+          osc_grpB_y[i] = ((1 - theOscMessage.get(i*4+3).floatValue()) *  height) ; 
           println(" values: "+osc_grpA_x[i]+", "+osc_grpA_y[i]+", "+osc_grpB_x[i]+", "+osc_grpB_y[i]);     
           drawConnections();
         }

@@ -37,7 +37,7 @@ static class CustomVerletParticle2D extends DwParticle2D{
     float vel  = getVelocity();
     float radn = 1.1f * rad / MAX_RAD;
     
-    float val = vel/1;
+    float val = vel/4;
     //getShading(val, rgb);
     
     //my own getShading

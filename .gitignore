@@ -4,4 +4,10 @@ Unity/ReactiveVisualization/Library
 Unity/ReactiveVisualization/Assets/Scenes
 Unity/ReactiveVisualization/.vs
 Unity/ReactiveVisualization/Assembly-CSharp.csproj
+Unity/ReactiveVisualization/Assembly-CSharp-Editor.csproj
 Unity/ReactiveVisualization/ReactiveVisualization.sln
+Unity/ReactiveVisualization/Assets/NuitrackSDK
+Unity/ReactiveVisualization/Assets/NuitrackSDK.meta
+Unity/ReactiveVisualization/Assets/Plugins
+Unity/ReactiveVisualization/Assets/Plugins.meta
+Unity/ReactiveVisualization/obj

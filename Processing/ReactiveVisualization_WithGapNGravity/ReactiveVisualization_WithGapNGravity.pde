@@ -343,7 +343,7 @@ public void draw() {
 //////////////////////////////////////draw connections between two points //////////////////////////
 
 
-int segmentNum = 8;
+int segmentNum = 18;
 
 float[] distance;
 float[] conRadius;
@@ -584,13 +584,13 @@ void oscEvent(OscMessage theOscMessage) {
         distance = expand(distance, distance.length + 1);
         //grpB_x = expand(grpB_x, grpB_x.length + 1);
         //grpB_y = expand(grpB_y, grpB_y.length + 1);
-       
+       //float ratio = 1000;
         //getting value from oscmessage
         if (theOscMessage.get(1).floatValue() != 0){
-          osc_grpA_x[i] = theOscMessage.get(i*4).floatValue();
-          osc_grpA_y[i] = theOscMessage.get(i*4+1).floatValue();       
-          osc_grpB_x[i] = theOscMessage.get(i*4+2).floatValue();
-          osc_grpB_y[i] = theOscMessage.get(i*4+3).floatValue(); 
+          osc_grpA_x[i] = (theOscMessage.get(i*4).floatValue()* width)  ;
+          osc_grpA_y[i] = ((1- theOscMessage.get(i*4+1).floatValue()) *  height );       
+          osc_grpB_x[i] = (theOscMessage.get(i*4+2).floatValue()* width) ;
+          osc_grpB_y[i] = ((1 - theOscMessage.get(i*4+3).floatValue()) *  height) ; 
           println(" values: "+osc_grpA_x[i]+", "+osc_grpA_y[i]+", "+osc_grpB_x[i]+", "+osc_grpB_y[i]);     
           drawConnections();
         }
