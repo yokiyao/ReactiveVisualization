@@ -57,6 +57,7 @@ float biggerVelocity = 1.2f;
 float normalVelocity = 0.95f;
 
 
+
 //osc
 OscP5 oscP5;
 NetAddress myRemoteLocation;
@@ -67,6 +68,8 @@ public void settings() {
 }
 
 public void setup() {
+
+  
   surface.setLocation(viewport_x, viewport_y);
 
   // main library context
@@ -117,7 +120,8 @@ public void setup() {
   curOSCPos_x = new float[]{};
   curOSCPos_y = new float[]{};
   
-
+  startingPoint = new PVector[]{};
+  endingPoint = new PVector[]{};
   
 }
 
@@ -530,6 +534,10 @@ int groupNum = 14;
 float[] osc_grpA_x, osc_grpA_y, osc_grpB_x, osc_grpB_y;
 //float[] grpA_x, grpA_y, grpB_x, grpB_y;
 float[] preOSCPos_x, preOSCPos_y, curOSCPos_x, curOSCPos_y;
+/////////////////////
+//new osc
+PVector[] startingPoint;
+PVector[] endingPoint;
 
 /* incoming osc message are forwarded to the oscEvent method. */
 void oscEvent(OscMessage theOscMessage) {
@@ -576,14 +584,14 @@ void oscEvent(OscMessage theOscMessage) {
         //grpB_y = expand(grpB_y, grpB_y.length + 1);
        
         //getting value from oscmessage
-        if (theOscMessage.get(1).floatValue() != 0){
+       // if (theOscMessage.get(1).floatValue() != 0){
           osc_grpA_x[i] = (theOscMessage.get(i*4).floatValue()* width)  ;
           osc_grpA_y[i] = ((1- theOscMessage.get(i*4+1).floatValue()) *  height );       
           osc_grpB_x[i] = (theOscMessage.get(i*4+2).floatValue()* width) ;
           osc_grpB_y[i] = ((1 - theOscMessage.get(i*4+3).floatValue()) *  height) ; 
           println(" values: "+osc_grpA_x[i]+", "+osc_grpA_y[i]+", "+osc_grpB_x[i]+", "+osc_grpB_y[i]);     
-          drawConnections();
-        }
+       //   drawConnections();
+      //  }
         
         //print("### received an osc message /test with typetag ffffffffff.");
        
