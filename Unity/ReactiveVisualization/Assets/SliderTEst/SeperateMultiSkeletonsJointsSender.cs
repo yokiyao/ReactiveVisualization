@@ -3,7 +3,7 @@ using System.Collections;
 using UnityEngine.UI;
 using System;
 using System.Collections.Generic;
-public class MultiSkeletonsJointsSender : MonoBehaviour
+public class SeperateMultiSkeletonsJointsSender: MonoBehaviour
 {
 
     public OSC osc;
@@ -20,12 +20,13 @@ public class MultiSkeletonsJointsSender : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        
-        nuitrackModules.SkeletonTracker.SetNumActiveUsers(6);
-        
-         //QualitySettings.vSyncCount = 0;
-         //Application.targetFrameRate = 30;
-        
+
+
+      
+     
+        //QualitySettings.vSyncCount = 0;
+        //Application.targetFrameRate = 30;
+
     }
 
 
@@ -52,12 +53,15 @@ public class MultiSkeletonsJointsSender : MonoBehaviour
 
     int skeletonNum;
     int connectionsLength = 0;
+    OscMessage message;
+    int maxUserID = 0;
     // Update is called once per frame
     void Update()
     {
         //Debug.Log(1 / Time.deltaTime);
         while (connectionsLength == 0)
         {
+            nuitrackModules.SkeletonTracker.SetNumActiveUsers(6);
             connectionsInfo = nuitrackModules.skeletonsVisualization.GetComponent<SkeletonsVisualization_Sender>().connectionsInfo; 
             connectionsLength = nuitrackModules.skeletonsVisualization.GetComponent<SkeletonsVisualization_Sender>().connectionsLength;
             //print(connectionsLength);
@@ -65,19 +69,26 @@ public class MultiSkeletonsJointsSender : MonoBehaviour
 
         }
 
+        skeletonNum = joints.Count;
+        if (skeletonNum > maxUserID) maxUserID = skeletonNum;
+
+        
+
         joints = nuitrackModules.skeletonsVisualization.GetComponent<SkeletonsVisualization_Sender>().joints;
+       
+        if (skeletonNum == 0 || nuitrackModules.SkeletonData == null) return;
+        print("skeletonNum  " + skeletonNum);
+        //has skeleton(s)   //joints[skeletonID][jointType] --> [skeletonID][connectionInfo[j, 0/1
+        #region old
+        /*
+       
+        //print()
+
         OscMessage message = new OscMessage();
         //jointsPositions = nuitrackModules.skeletonsVisualizationPrefab.GetComponent<SkeletonsVisualization_Sender>().jointsPositions;
-        message.address = "/test";
+        message.address = "/sk" + skeletonNum.ToString();
+        print(message.address);
 
-        skeletonNum = joints.Count;
-
-        if (skeletonNum == 0 || nuitrackModules.SkeletonData == null) return;
-
-        print("skip");
-        print("skeletonNum  " + skeletonNum);
-        //print()
-        
         for (int i = 1; i < skeletonNum + 1; i++)
         {
             for (int j = 0; j < connectionsLength; j++)
@@ -87,17 +98,65 @@ public class MultiSkeletonsJointsSender : MonoBehaviour
                 if (connectionsInfo[j, 1] == nuitrack.JointType.RightHand) print(connectionsInfo[j, 1] + "transfered:.." + transferVec_1);
                 if (connectionsInfo[j, 1] == nuitrack.JointType.RightHand)  print(connectionsInfo[j, 1] + "..." + joints[i][connectionsInfo[j, 0]].transform.position);
                 message.values.Add(transferVec_1.x);
-                message.values.Add(transferVec_1.y);
-                message.values.Add(transferVec_2.x);
-                message.values.Add(transferVec_2.y);
+                //message.values.Add(transferVec_1.y);
+                //message.values.Add(transferVec_2.x);
+                //message.values.Add(transferVec_2.y);
 
             }
         }
 
         osc.Send(message);
+        */
+        #endregion
+        
+        for (int skeletonN = 1; skeletonN < skeletonNum+1; skeletonN++)
+        {
+            message = new OscMessage();
+            message.address = "/sk" + skeletonNum.ToString();
+
+            //    //switch (skeletonNum)
+            //    //{
+            //    //    case 1:
+            for (int i = 0; i < connectionsLength; i++)
+            {
+                Vector3 transferVec_1 = Camera.main.WorldToViewportPoint(joints[skeletonN][connectionsInfo[i, 0]].transform.position);
+                Vector3 transferVec_2 = Camera.main.WorldToViewportPoint(joints[skeletonN][connectionsInfo[i, 1]].transform.position);
+                message.values.Add(transferVec_1.x);
+                message.values.Add(transferVec_1.y);
+                message.values.Add(transferVec_2.x);
+                message.values.Add(transferVec_2.y);
+                print(skeletonNum + "....i..." + i + "...value..." + transferVec_1 + "..." + transferVec_2);
+
+            }
+            osc.Send(message);
+
+          
+            //        break;
+
+            //    case 2:
+
+            //        break;
+
+            //    case 3:
+
+            //        break;
+
+            //    case 4:
+
+            //        break;
 
 
-   
+            //    case 5:
+
+            //        break;
+
+            //    case 6:
+            //        break;
+
+            //}
+
+        }
+
 
     }
 

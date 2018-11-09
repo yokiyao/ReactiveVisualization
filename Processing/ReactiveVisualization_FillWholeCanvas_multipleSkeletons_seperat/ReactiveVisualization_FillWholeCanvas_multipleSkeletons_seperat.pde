@@ -28,6 +28,7 @@ import processing.core.*;
 import processing.opengl.PGraphics2D;
 
 import java.util.Arrays;
+import java.util.Map;
 
 import oscP5.*;
 import netP5.*;
@@ -92,7 +93,7 @@ public void setup() {
   param_physics.GRAVITY = new float[]{0, 0.1f};
 
   param_physics.bounds  = new float[]{0, 0, width, height};
-  param_physics.iterations_collisions = 4;
+  param_physics.iterations_collisions = 2;
   param_physics.iterations_springs    = 0; // no springs in this demo
 
   particlesystem.initParticles();
@@ -106,20 +107,16 @@ public void setup() {
   oscP5 = new OscP5(this,12000);
   myRemoteLocation = new NetAddress("127.0.0.1",12000);
   
-  osc_grpA_x = new float[]{};
-  osc_grpA_y = new float[]{};
-  osc_grpB_x = new float[]{};
-  osc_grpB_y = new float[]{};
-  preOSCPos_x = new float[]{};
-  preOSCPos_y = new float[]{};
-  conRadius = new float[]{};
-  distance = new float[]{};
-  curOSCPos_x = new float[]{};
-  curOSCPos_y = new float[]{};
-  
+ 
 
   
+  //skeletons = new Skeleton2D();
+  skeletonsHM = new HashMap<String, PVector[]>();
+
+  curVecHM = new HashMap<String, PVector[]>();
+  preVecHM = new HashMap<String, PVector[]>();
 }
+
 
 //////////////////////////////////////// createNewParticle ///////////////////////////////////////////////
 
@@ -292,22 +289,6 @@ public void draw() {
     createParticleInCircle(mouseX, mouseY);
   }
   
-  
-  //  add force: Middle Mouse Button (MMB) -> particle[0]
-  //if (/*mousePressed && mouseButton == CENTER*/ abs(OSCupdateX - moveX) > 10 || abs(OSCupdateY - moveY) > 10) {
-  //  moveX = OSCupdateX;
-  //  moveY = OSCupdateY;
-  //  float[] mouse = {moveX, moveY};
-  //  particlesystem.particles[0].moveTo(mouse, 0.3f);
-  //  particlesystem.particles[0].setRadius(30);
-  //  //println(particlesystem.particles[0].getVelocity());
-  //  particlesystem.particles[0].enableCollisions(false);
-  //} else {
-  //  particlesystem.particles[0].enableCollisions(true);
-  //  particlesystem.particles[0].setRadius(0);
-  //}
-  
-
 
   // update physics step
   boolean collision_detection = COLLISION_DETECTION && particlesystem.particle_param.DAMP_COLLISION != 0.0;
@@ -339,33 +320,33 @@ public void draw() {
 
 int segmentNum = 8;
 
-float[] distance;
-float[] conRadius;
 float posx;
 float posy;
 boolean enter = false;
 int prevF;
-void drawConnections(){ 
+void drawConnections(String skKey){ 
   
-  for (int i = 0; i < groupNum; i++){
-    float distance = dist(osc_grpA_x[i], osc_grpA_y[i], osc_grpB_x[i], osc_grpB_y[i]);
+  for (int i = 0; i < 12; i++){
+    PVector startingJoint = skeletonsHM.get(skKey)[i*2];
+    PVector endingJoint = skeletonsHM.get(skKey)[i*2+1];
+    
+    float distance = dist(startingJoint.x, startingJoint.y, endingJoint.x, endingJoint.y);
     float conRadius = distance/segmentNum/2;
     
     for (int j = 0; j < segmentNum + 1; j++){
       if (prevF != frameCount) enter = false;
       int n = i * (segmentNum + 1) + j;
-      preOSCPos_x[n] = curOSCPos_x[n];
-      preOSCPos_y[n] = curOSCPos_y[n];
+      preVecHM.get(skKey)[n] = curVecHM.get(skKey)[n];
       
-      curOSCPos_x[n] = (osc_grpB_x[i] - osc_grpA_x[i]) / segmentNum * j + osc_grpA_x[i];
-      curOSCPos_y[n] = (osc_grpB_y[i] - osc_grpA_y[i]) / segmentNum * j + osc_grpA_y[i];
+      curVecHM.get(skKey)[n] = new PVector((endingJoint.x - startingJoint.x) / segmentNum * j + startingJoint.x, (endingJoint.y - startingJoint.y) / segmentNum * j + startingJoint.y);
      
      
-      float[] pos = { curOSCPos_x[n], curOSCPos_y[n]};  
-      particlesystem.particles[n].moveTo(pos, 1f);
       
-      if ((abs(preOSCPos_x[n] - curOSCPos_x[n]) > 10 || abs(preOSCPos_y[n] - curOSCPos_y[n]) > 10)){  
+      
+      if ((abs(preVecHM.get(skKey)[n].x - curVecHM.get(skKey)[n].x) > 5 || abs(preVecHM.get(skKey)[n].y - curVecHM.get(skKey)[n].y) > 5)){  
         enter = true;
+        float[] pos = {curVecHM.get(skKey)[n].x, curVecHM.get(skKey)[n].y};  
+        particlesystem.particles[n].moveTo(pos, 1f);
       //if (preOSCPos_x[n] != curOSCPos_y[n]){
         particlesystem.particles[n].setRadius(conRadius);
         particlesystem.particles[n].enableCollisions(false);
@@ -375,7 +356,8 @@ void drawConnections(){
         prevF = frameCount;
 
        }
-       else if ((abs(preOSCPos_x[n] - curOSCPos_x[n]) < 10 && abs(preOSCPos_y[n] - curOSCPos_y[n]) < 10 ) && !enter){
+       else if (((abs( preVecHM.get(skKey)[n].x - curVecHM.get(skKey)[n].x) <= 5 && abs( preVecHM.get(skKey)[n].y - curVecHM.get(skKey)[n].y) <= 5))
+         && !enter){
         
         particlesystem.particles[n].setRadius(particlesystem.passRadius);
         particlesystem.particles[n].enableCollisions(true);
@@ -384,52 +366,11 @@ void drawConnections(){
        // if (n == 1) println(frameCount+ "    small"  + "   n  " + n + "  pre " + preOSCPos_x[n] + "    cur   " + curOSCPos_x[n]);
        }
        
-       //println("prepos0     "+ preOSCPos_x[0] + "    p0     " + particlesystem.particles[0].cx);
-       //println("prepos1     "+ preOSCPos_x[1] + "    p1     " + particlesystem.particles[1].cx);
-       //println("prepos2     "+ preOSCPos_x[2] + "    p2     " + particlesystem.particles[2].cx);
-       //println("prepos3     "+ preOSCPos_x[3] + "    p3     " + particlesystem.particles[3].cx);
-       //println("prepos4     "+ preOSCPos_x[4] + "    p4     " + particlesystem.particles[4].cx);
-       //println("prepos5     "+ preOSCPos_x[5] + "    p5     " + particlesystem.particles[5].cx);
-       //println("prepos6     "+ preOSCPos_x[6] + "    p6     " + particlesystem.particles[6].cx);
-       //println("prepos7     "+ preOSCPos_x[7] + "    p7     " + particlesystem.particles[7].cx);
-       //println("prepos8     "+ preOSCPos_x[8] + "    p8     " + particlesystem.particles[8].cx);
-       //println("prepos9     "+ preOSCPos_x[9] + "    p9     " + particlesystem.particles[9].cx);
-       //println("prepos10     "+ preOSCPos_x[10] + "    p10     " + particlesystem.particles[10].cx);
-       //println("prepos11     "+ preOSCPos_x[11] + "    p11     " + particlesystem.particles[11].cx);
-       
-       //println("prepos0     "+ preOSCPos_x[0] + "    p0     " + particlesystem.particles[0].cx);
-       //println("prepos1     "+ preOSCPos_x[1] + "    p1     " + particlesystem.particles[1].cx);
-       //println("prepos2     "+ preOSCPos_x[2] + "    p2     " + particlesystem.particles[2].cx);
-       //println("prepos3     "+ preOSCPos_x[3] + "    p3     " + particlesystem.particles[3].cx);
-       //println("prepos4     "+ preOSCPos_x[4] + "    p4     " + particlesystem.particles[4].cx);
-       //println("prepos5     "+ preOSCPos_x[5] + "    p5     " + particlesystem.particles[5].cx);
-       //println("prepos6     "+ preOSCPos_x[6] + "    p6     " + particlesystem.particles[6].cx);
-       //println("prepos7     "+ preOSCPos_x[7] + "    p7     " + particlesystem.particles[7].cx);
-       //println("prepos8     "+ preOSCPos_x[8] + "    p8     " + particlesystem.particles[8].cx);
-       //println("prepos9     "+ preOSCPos_x[9] + "    p9     " + particlesystem.particles[9].cx);
-       //println("prepos10     "+ preOSCPos_x[10] + "    p10     " + particlesystem.particles[10].cx);
-       //println("prepos11     "+ preOSCPos_x[11] + "    p11     " + particlesystem.particles[11].cx);
+    
      
     }
   }
-  //print(particlesystem.particles[0].cx + ".." + particlesystem.particles[0].cy +  ".." +
-  //particlesystem.particles[5].cx + ".." + particlesystem.particles[5].cy);
-  //float[] p = {500, 500};
-  //  particlesystem.particles[0].moveTo(p, 0.3f);
 
-  
-  // if (abs(OSCupdateX - moveX) > 10 || abs(OSCupdateY - moveY) > 10) {
-  //  paX = OSCupdateX;
-  //  moveY = OSCupdateY;
-  //  float[] mouse = {moveX, moveY};
-  //  particlesystem.particles[0].moveTo(mouse, 0.3f);
-  //  particlesystem.particles[0].setRadius(30);
-  //  //println(particlesystem.particles[0].getVelocity());
-  //  particlesystem.particles[0].enableCollisions(false);
-  //} else {
-  //  particlesystem.particles[0].enableCollisions(true);
-  //  particlesystem.particles[0].setRadius(0);
-  //}
   
 }
 
@@ -531,9 +472,77 @@ float[] osc_grpA_x, osc_grpA_y, osc_grpB_x, osc_grpB_y;
 //float[] grpA_x, grpA_y, grpB_x, grpB_y;
 float[] preOSCPos_x, preOSCPos_y, curOSCPos_x, curOSCPos_y;
 
+//ArrayList<Skeleton2D> skeletonArray = new ArrayList<Skeleton2D>();
+//Skeleton2D skeletons;
+
+HashMap <String, PVector[]> skeletonsHM;
+HashMap <String, PVector[]> curVecHM;
+HashMap <String, PVector[]> preVecHM;
+
 /* incoming osc message are forwarded to the oscEvent method. */
 void oscEvent(OscMessage theOscMessage) {
+  //print("### received an osc message.");
+  
+  if (theOscMessage.checkAddrPattern("/sk1") == true){
+    //create an empty joints array
+    if (!skeletonsHM.containsKey("sk1")){
+       //PVector[] joints = new PVector[24];
+       skeletonsHM.put("sk1", new PVector[24]);
+       curVecHM.put("sk1", new PVector[12*(segmentNum+1)]);
+       preVecHM.put("sk1", new PVector[12*(segmentNum+1)]);
+      
+       
+       //print(skeletonsHM.get("sk1").length);
+     }
+     
+     //skeletonsHM.get("sk1")[0].x =10;
+     //skeletonsHM.get("sk1")[0] = new PVector(1,1);
+     //println(skeletonsHM.get("sk1")[0]);
+     for (int n = 0; n < 12; n++){
+       
+       skeletonsHM.get("sk1")[n*2] = new PVector((1-theOscMessage.get(n*4).floatValue()) * width, (1-theOscMessage.get(n*4+1).floatValue())*height);
+       skeletonsHM.get("sk1")[n*2+1] = new PVector((1-theOscMessage.get(n*4 + 2).floatValue()) * width, (1-theOscMessage.get(n*4 + 3).floatValue())*height);
 
+       println(skeletonsHM.get("sk1")[n*2]);
+       println(skeletonsHM.get("sk1")[n*2 + 1]);
+     }
+   
+     drawConnections("sk1");
+   
+    
+  }
+  
+  else if (theOscMessage.checkAddrPattern("/sk2") == true){
+    if (!skeletonsHM.containsKey("sk2")){
+       //PVector[] joints = new PVector[24];
+       skeletonsHM.put("sk2", new PVector[24]);
+       curVecHM.put("sk2", new PVector[12*(segmentNum+1)]);
+       preVecHM.put("sk2", new PVector[12*(segmentNum+1)]);
+      
+       
+       //print(skeletonsHM.get("sk2").length);
+     }
+     
+     //skeletonsHM.get("sk1")[0].x =10;
+     //skeletonsHM.get("sk1")[0] = new PVector(1,1);
+     //println(skeletonsHM.get("sk2")[0]);
+     for (int n = 0; n < 12; n++){
+       
+       skeletonsHM.get("sk2")[n*2] = new PVector((1-theOscMessage.get(n*4).floatValue()) * width, (1-theOscMessage.get(n*4+1).floatValue())*height);
+       skeletonsHM.get("sk2")[n*2+1] = new PVector((1-theOscMessage.get(n*4 + 2).floatValue()) * width, (1-theOscMessage.get(n*4 + 3).floatValue())*height);
+
+       println(skeletonsHM.get("sk2")[n*2]);
+       println(skeletonsHM.get("sk2")[n*2 + 1]);
+     }
+   
+     drawConnections("sk2");
+   
+    
+    
+    
+  }
+  
+  
   /* single particle collider
   if(theOscMessage.checkAddrPattern("/test")==true) {
     // check if the typetag is the right one.
@@ -550,50 +559,7 @@ void oscEvent(OscMessage theOscMessage) {
   } 
   println("### received an osc message. with address pattern "+theOscMessage.addrPattern());
   */
-  
-  
-   // receive two pos
-   if(theOscMessage.checkAddrPattern("/test")==true) {
-     //print(theOscMessage.addrPattern());
-    // check if the typetag is the right one.
-    //if(theOscMessage.checkTypetag("ffffffff")) {
-      // parse theOscMessage and extract the values from the osc message arguments. 
-      for (int i = 0; i < groupNum; i+=1 ){
-        osc_grpA_x = expand(osc_grpA_x, osc_grpA_x.length + 1);
-        osc_grpA_y = expand(osc_grpA_y, osc_grpA_y.length + 1);
-        //grpA_x = expand(grpA_x, grpA_x.length + 1);
-        //grpA_y = expand(grpA_y, grpA_y.length + 1);        
-        osc_grpB_x = expand(osc_grpB_x, osc_grpB_x.length + 1);
-        osc_grpB_y = expand(osc_grpB_y, osc_grpB_y.length + 1);
-        
-        preOSCPos_x =  expand(preOSCPos_x, preOSCPos_x.length + (segmentNum + 1));
-        preOSCPos_y =  expand(preOSCPos_y, preOSCPos_y.length + (segmentNum + 1));
-        curOSCPos_x = expand(curOSCPos_x, curOSCPos_x.length + (segmentNum + 1));
-        curOSCPos_y = expand(curOSCPos_y, curOSCPos_y.length + (segmentNum + 1));
-        conRadius = expand(conRadius, conRadius.length + 1);
-        distance = expand(distance, distance.length + 1);
-        //grpB_x = expand(grpB_x, grpB_x.length + 1);
-        //grpB_y = expand(grpB_y, grpB_y.length + 1);
-       
-        //getting value from oscmessage
-        if (theOscMessage.get(1).floatValue() != 0){
-          osc_grpA_x[i] = (theOscMessage.get(i*4).floatValue()* width)  ;
-          osc_grpA_y[i] = ((1- theOscMessage.get(i*4+1).floatValue()) *  height );       
-          osc_grpB_x[i] = (theOscMessage.get(i*4+2).floatValue()* width) ;
-          osc_grpB_y[i] = ((1 - theOscMessage.get(i*4+3).floatValue()) *  height) ; 
-          println("fc   " + frameCount + "   values:   "+osc_grpA_x[i]+", "+osc_grpA_y[i]+", "+osc_grpB_x[i]+", "+osc_grpB_y[i]);     
-          drawConnections();
-          
-        }
-        
-        //print("### received an osc message /test with typetag ffffffffff.");
-       
-      }
-      
-     
-      //return;
-    //}  
-  } 
-  //println("### received an osc message. with address pattern "+theOscMessage.addrPattern());
+ 
+ 
   
 }
