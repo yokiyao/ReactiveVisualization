@@ -115,6 +115,8 @@ public void setup() {
 
   curVecHM = new HashMap<String, PVector[]>();
   preVecHM = new HashMap<String, PVector[]>();
+  
+  everyVecHM = new HashMap<String, PVector[]>();
 }
 
 
@@ -338,6 +340,7 @@ float posx;
 float posy;
 boolean enter = false;
 int prevF;
+/*
 void drawConnections(String skKey){ 
   
   for (int i = 0; i < 12; i++){
@@ -355,12 +358,11 @@ void drawConnections(String skKey){
       curVecHM.get(skKey)[n] = new PVector((endingJoint.x - startingJoint.x) / segmentNum * j + startingJoint.x, (endingJoint.y - startingJoint.y) / segmentNum * j + startingJoint.y);
      
      
-       
+         float[] pos = {curVecHM.get(skKey)[n].x, curVecHM.get(skKey)[n].y};  
+        particlesystem.particles[n].moveTo(pos, 1f);
       
       if ((abs(preVecHM.get(skKey)[n].x - curVecHM.get(skKey)[n].x) > 5 || abs(preVecHM.get(skKey)[n].y - curVecHM.get(skKey)[n].y) > 5)){  
         enter = true;
-          float[] pos = {curVecHM.get(skKey)[n].x, curVecHM.get(skKey)[n].y};  
-        particlesystem.particles[n].moveTo(pos, 1f);
         //float preCurDist = dist(preVecHM.get(skKey)[n].x, preVecHM.get(skKey)[n].y, curVecHM.get(skKey)[n].x, curVecHM.get(skKey)[n].y);
      
       //if (preOSCPos_x[n] != curOSCPos_y[n]){
@@ -386,6 +388,55 @@ void drawConnections(String skKey){
     }
   }
 
+  
+}
+*/
+
+//re-write drawConncetion. only detect the joint position
+void drawConnections(String skKey){ 
+  
+  for (int i = 0; i < 12; i++){
+    
+    preVecHM.get(skKey)[i*2] = curVecHM.get(skKey)[i*2];
+    preVecHM.get(skKey)[i*2+1] = curVecHM.get(skKey)[i*2+1];
+    PVector startingJoint = skeletonsHM.get(skKey)[i*2];
+    PVector endingJoint = skeletonsHM.get(skKey)[i*2+1];
+    
+    curVecHM.get(skKey)[i*2] = startingJoint;
+    curVecHM.get(skKey)[i*2+1] = endingJoint;
+    
+    float distance = dist(startingJoint.x, startingJoint.y, endingJoint.x, endingJoint.y);
+    float conRadius = distance/segmentNum/2;
+    
+    
+    //starting point or ending point moves more than 5 pixel
+    if (preVecHM.get(skKey)[i*2].dist(curVecHM.get(skKey)[i*2]) > 15 || preVecHM.get(skKey)[i*2+1].dist(curVecHM.get(skKey)[i*2+1]) > 15){
+      for (int j = 0; j < segmentNum + 1; j++){
+         //if (prevF != frameCount) enter = false;
+         int  n = i * (segmentNum + 1) + j;
+         everyVecHM.get(skKey)[n] = new PVector((endingJoint.x - startingJoint.x) / segmentNum * j + startingJoint.x, (endingJoint.y - startingJoint.y) / segmentNum * j + startingJoint.y);
+         float[] pos = {everyVecHM.get(skKey)[n].x, everyVecHM.get(skKey)[n].y};
+         particlesystem.particles[n].moveTo(pos, 1f);
+         enter = true;
+         particlesystem.particles[n].setRadius(conRadius);
+         particlesystem.particles[n].setRadiusCollision(conRadius);
+         particlesystem.particles[n].enableCollisions(false);
+         particlesystem.particles[n].isOccupied = true;
+         prevF = frameCount;
+        
+      }
+    }
+    else if (preVecHM.get(skKey)[i*2].dist(curVecHM.get(skKey)[i*2]) <= 15 && preVecHM.get(skKey)[i*2+1].dist(curVecHM.get(skKey)[i*2+1]) <= 15
+      ){
+        
+        for (int j = 0; j < segmentNum + 1; j++){
+           int n = 1 * (segmentNum + 1) + j;
+           particlesystem.particles[n].setRadius(particlesystem.passRadius);
+           particlesystem.particles[n].enableCollisions(true);
+           particlesystem.particles[n].isOccupied = false;
+        }
+      }
+  }
   
 }
 
@@ -502,6 +553,7 @@ public void createGUI() {
 HashMap <String, PVector[]> skeletonsHM;
 HashMap <String, PVector[]> curVecHM;
 HashMap <String, PVector[]> preVecHM;
+HashMap <String, PVector[]> everyVecHM;
 int skeletonNum;
 
 /* incoming osc message are forwarded to the oscEvent method. */
@@ -528,9 +580,9 @@ void oscEvent(OscMessage theOscMessage) {
         if (!skeletonsHM.containsKey("sk" + skeN)){
            //PVector[] joints = new PVector[24];
            skeletonsHM.put("sk" + skeN, new PVector[24]);
-           curVecHM.put("sk" + skeN, new PVector[12*(segmentNum+1)]);
-           preVecHM.put("sk" + skeN, new PVector[12*(segmentNum+1)]);
-          
+           curVecHM.put("sk" + skeN, new PVector[/*12*(segmentNum+1)*/24]);
+           preVecHM.put("sk" + skeN, new PVector[/*12*(segmentNum+1)*/24]);
+           everyVecHM.put("sk" + skeN, new PVector[12 * (segmentNum + 1)]);
            
            //print(skeletonsHM.get("sk1").length);
          }
