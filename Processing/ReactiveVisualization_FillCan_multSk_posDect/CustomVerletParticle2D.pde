@@ -61,18 +61,18 @@ static class CustomVerletParticle2D extends DwParticle2D{
     
     int col = a << 24 | r << 16 | g << 8 | b;
     
-   setColor(col);
-    //if(!isOccupied){
-    //  setColor(col);
-    //}
-    //else{
-    //  setColor(0xFF000000);
-    //}
-    
-    
-    if (idx < 108){
-      setColor(0xFFFFFF00);
+    //setColor(col);
+    if(!isOccupied){
+      setColor(col);
     }
+    else{
+      setColor(0xFF000000);
+    }
+    
+    
+    //if (idx < 108){
+    //  setColor(0xFFFFFF00);
+    //}
     
     //if (idx < 252){
     //  setColor(0xFF000000);
@@ -120,6 +120,9 @@ static class CustomVerletParticle2D extends DwParticle2D{
       cy += vy + ay * 0.5 * timestep * timestep;
     }
     ax = ay = 0;
+    
+    
+    
   }
  
 }

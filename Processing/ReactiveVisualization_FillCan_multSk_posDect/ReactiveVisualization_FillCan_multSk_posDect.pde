@@ -135,7 +135,7 @@ public void createParticle(float spawn_x, float spawn_y) {
   //int idx_curr = physics.getParticlesCount();
   //int   idx_prev = idx_curr - 1;
   float radius_collision_scale = 1.1f;
-  float radius   = 30; 
+  float radius   = 1; 
   //float rest_len = radius * 3 * radius_collision_scale;
 
   CustomVerletParticle2D pa = new CustomVerletParticle2D(particlesystem.papplet, idx_curr);
@@ -297,6 +297,7 @@ public void draw() {
   
   if (keyPressed && key == ' ') {
     createParticle(mouseX, mouseY);
+    println(mouseX + "   " + mouseY + "   " + frameCount);
   }
 
   if (mousePressed && mouseButton == LEFT && !alreadyAdd) {
@@ -399,44 +400,83 @@ void drawConnections(String skKey){
     
     preVecHM.get(skKey)[i*2] = curVecHM.get(skKey)[i*2];
     preVecHM.get(skKey)[i*2+1] = curVecHM.get(skKey)[i*2+1];
+    
     PVector startingJoint = skeletonsHM.get(skKey)[i*2];
     PVector endingJoint = skeletonsHM.get(skKey)[i*2+1];
     
     curVecHM.get(skKey)[i*2] = startingJoint;
     curVecHM.get(skKey)[i*2+1] = endingJoint;
     
+    println("previous     " + preVecHM.get(skKey)[i*2] + "     current" +  curVecHM.get(skKey)[i*2] + "          ");
+    
     float distance = dist(startingJoint.x, startingJoint.y, endingJoint.x, endingJoint.y);
     float conRadius = distance/segmentNum/2;
     
     
     //starting point or ending point moves more than 5 pixel
-    if (preVecHM.get(skKey)[i*2].dist(curVecHM.get(skKey)[i*2]) > 15 || preVecHM.get(skKey)[i*2+1].dist(curVecHM.get(skKey)[i*2+1]) > 15){
-      for (int j = 0; j < segmentNum + 1; j++){
-         //if (prevF != frameCount) enter = false;
-         int  n = i * (segmentNum + 1) + j;
-         everyVecHM.get(skKey)[n] = new PVector((endingJoint.x - startingJoint.x) / segmentNum * j + startingJoint.x, (endingJoint.y - startingJoint.y) / segmentNum * j + startingJoint.y);
-         float[] pos = {everyVecHM.get(skKey)[n].x, everyVecHM.get(skKey)[n].y};
-         particlesystem.particles[n].moveTo(pos, 1f);
-         enter = true;
-         particlesystem.particles[n].setRadius(conRadius);
-         particlesystem.particles[n].setRadiusCollision(conRadius);
-         particlesystem.particles[n].enableCollisions(false);
-         particlesystem.particles[n].isOccupied = true;
-         prevF = frameCount;
+    //if (preVecHM.get(skKey)[i*2].dist(curVecHM.get(skKey)[i*2]) > 15 || preVecHM.get(skKey)[i*2+1].dist(curVecHM.get(skKey)[i*2+1]) > 15){
+      if ((startingJoint.x == width || startingJoint.y == height) || (endingJoint.x == width || endingJoint.y == height)) break;
         
-      }
-    }
-    else if (preVecHM.get(skKey)[i*2].dist(curVecHM.get(skKey)[i*2]) <= 15 && preVecHM.get(skKey)[i*2+1].dist(curVecHM.get(skKey)[i*2+1]) <= 15
-      ){
-        
+      //if (preVecHM.get(skKey)[i*2].dist(curVecHM.get(skKey)[i*2]) > 5 || preVecHM.get(skKey)[i*2+1].dist(curVecHM.get(skKey)[i*2+1]) > 5){
         for (int j = 0; j < segmentNum + 1; j++){
-           int n = 1 * (segmentNum + 1) + j;
-           particlesystem.particles[n].setRadius(particlesystem.passRadius);
-           particlesystem.particles[n].enableCollisions(true);
-           particlesystem.particles[n].isOccupied = false;
+          // if (prevF != frameCount) enter = false;
+           int  n = i * (segmentNum + 1) + j;
+           everyVecHM.get(skKey)[n] = new PVector((endingJoint.x - startingJoint.x) / segmentNum * j + startingJoint.x, (endingJoint.y - startingJoint.y) / segmentNum * j + startingJoint.y);
+           float[] pos = {everyVecHM.get(skKey)[n].x, everyVecHM.get(skKey)[n].y};
+           particlesystem.particles[n].moveTo(pos, 1f);
+           //createParticle(pos[0],pos[1]);
+           //enter = true;
+           float px = particlesystem.particles[n].px;
+           float py = particlesystem.particles[n].py;
+           float cx = particlesystem.particles[n].cx;
+           float cy = particlesystem.particles[n].cy;
+           float d = dist(px, py, cx, cy);
+           if (d > 5){
+             particlesystem.particles[n].setRadius(conRadius);
+             particlesystem.particles[n].enableCollisions(false);
+             particlesystem.particles[n].isOccupied = true;
+           }
+           else{
+             particlesystem.particles[n].setRadius(0);
+           }
+           
+           //particlesystem.particles[n].setRadiusCollision(conRadius);
+           
+           //prevF = frameCount;
+          
         }
-      }
+        
+          //resetUnusedParticle(i, conRadius);
+      
+    //}
+    //else if (preVecHM.get(skKey)[i*2].dist(curVecHM.get(skKey)[i*2]) <= 5 && preVecHM.get(skKey)[i*2+1].dist(curVecHM.get(skKey)[i*2+1]) <= 5
+    //  && !enter){
+        
+    //    for (int j = 0; j < segmentNum + 1; j++){
+    //       int n = 1 * (segmentNum + 1) + j;
+    //       particlesystem.particles[n].setRadius(0);
+    //       particlesystem.particles[n].enableCollisions(true);
+    //       particlesystem.particles[n].isOccupied = false;
+    //    }
+    //}
   }
+  
+
+  
+}
+void resetUnusedParticle(int i, float conRadius){
+   for (int j = 0; j < segmentNum + 1; j++){
+      int  n = i * (segmentNum + 1) + j;
+     
+      if (abs(particlesystem.particles[n].px - particlesystem.particles[n].cx) >5){
+          particlesystem.particles[n].setRadius(conRadius);
+      }
+      else{
+        particlesystem.particles[n].setRadius(0);
+      }
+      
+   }
+  
   
 }
 
@@ -595,8 +635,8 @@ void oscEvent(OscMessage theOscMessage) {
            skeletonsHM.get("sk" + skeN)[n*2] = new PVector((1-theOscMessage.get(n*4).floatValue()) * width, (1-theOscMessage.get(n*4+1).floatValue())*height);
            skeletonsHM.get("sk" + skeN)[n*2+1] = new PVector((1-theOscMessage.get(n*4 + 2).floatValue()) * width, (1-theOscMessage.get(n*4 + 3).floatValue())*height);
     
-           println(skeletonsHM.get("sk" + skeN)[n*2]);
-           println(skeletonsHM.get("sk" + skeN)[n*2 + 1]);
+           //println(skeletonsHM.get("sk" + skeN)[n*2] + "   " + n);
+           //println(skeletonsHM.get("sk" + skeN)[n*2 + 1]);
          }
        
          drawConnections("sk" + skeN);

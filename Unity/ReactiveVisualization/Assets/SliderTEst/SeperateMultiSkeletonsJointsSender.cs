@@ -52,7 +52,7 @@ public class SeperateMultiSkeletonsJointsSender : MonoBehaviour
 
         joints = nuitrackModules.skeletonsVisualization.GetComponent<SkeletonsVisualization_Sender>().joints;
         skeletonNum = nuitrackModules.SkeletonData.NumUsers;
-        print("skeletonNum  " + skeletonNum + maxUserID);
+        //print("skeletonNum  " + skeletonNum + maxUserID);
 
     
         
@@ -138,11 +138,14 @@ public class SeperateMultiSkeletonsJointsSender : MonoBehaviour
                 //print("skeletonN   " + skeletonN + "    "  + joints[skeletonN][connectionsInfo[i, 0]].transform.position);
                 Vector3 transferVec_1 = Camera.main.WorldToViewportPoint(joints[skeletonN][connectionsInfo[i, 0]].transform.position);
                 Vector3 transferVec_2 = Camera.main.WorldToViewportPoint(joints[skeletonN][connectionsInfo[i, 1]].transform.position);
+               
                 message.values.Add(transferVec_1.x);
                 message.values.Add(transferVec_1.y);
                 message.values.Add(transferVec_2.x);
                 message.values.Add(transferVec_2.y);
-                //print(skeletonNum + "....i..." + i + "...value..." + transferVec_1 + "..." + transferVec_2);
+                print(skeletonNum + "....i..." + i + "...value..." + transferVec_1 + "..." + transferVec_2);
+               
+
 
             }
             osc.Send(message);
