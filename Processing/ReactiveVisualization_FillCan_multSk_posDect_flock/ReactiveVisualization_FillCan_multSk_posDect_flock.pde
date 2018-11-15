@@ -314,8 +314,8 @@ public void draw() {
      particlesystem.particles[2222].setRadius(30);
      
   }
-  //float[] a = {100,100};
-  //   particlesystem.particles[2222].addForce(a);
+  float[] a = {100,100};
+     particlesystem.particles[2222].addForce(a);
 
   // update physics step
   boolean collision_detection = COLLISION_DETECTION && particlesystem.particle_param.DAMP_COLLISION != 0.0;
@@ -417,7 +417,7 @@ void drawConnections(String skKey){
     curVecHM.get(skKey)[i*2] = startingJoint;
     curVecHM.get(skKey)[i*2+1] = endingJoint;
     
-    println("previous     " + preVecHM.get(skKey)[i*2] + "     current" +  curVecHM.get(skKey)[i*2] + "          ");
+    //println("previous     " + preVecHM.get(skKey)[i*2] + "     current" +  curVecHM.get(skKey)[i*2] + "          ");
     
     float distance = dist(startingJoint.x, startingJoint.y, endingJoint.x, endingJoint.y);
     float conRadius = distance/segmentNum/2;
@@ -441,13 +441,24 @@ void drawConnections(String skKey){
            float cx = particlesystem.particles[n].cx;
            float cy = particlesystem.particles[n].cy;
            float d = dist(px, py, cx, cy);
+           //ArrayList<CustomVerletParticle2D> list = new ArrayList<CustomVerletParticle2D>();
            if (d > 5){
              particlesystem.particles[n].setRadius(conRadius);
              particlesystem.particles[n].enableCollisions(false);
              particlesystem.particles[n].isOccupied = true;
+            
+            //list = findParticlesWithinRadius(particlesystem.particles[i].cx, particlesystem.particles[i].cy, 20);
+             //for (CustomVerletParticle2D near : list) {
+               //float[] a = {particlesystem.particles[i].cx - px, cy - py};
+               //near.addForce(a);
+              //near.isOccupied = true;
+            // }
+
            }
            else{
              particlesystem.particles[n].setRadius(0);
+             particlesystem.particles[n].isOccupied = false;
+             
            }
            
            //particlesystem.particles[n].setRadiusCollision(conRadius);
@@ -474,21 +485,8 @@ void drawConnections(String skKey){
 
   
 }
-void resetUnusedParticle(int i, float conRadius){
-   for (int j = 0; j < segmentNum + 1; j++){
-      int  n = i * (segmentNum + 1) + j;
-     
-      if (abs(particlesystem.particles[n].px - particlesystem.particles[n].cx) >5){
-          particlesystem.particles[n].setRadius(conRadius);
-      }
-      else{
-        particlesystem.particles[n].setRadius(0);
-      }
-      
-   }
   
-  
-}
+
 
 void SetNormalRadius(){
   //print("skeletonNum      " + skeletonNum);
