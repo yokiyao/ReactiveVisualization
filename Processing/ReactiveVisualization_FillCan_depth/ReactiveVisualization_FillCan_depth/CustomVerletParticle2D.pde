@@ -66,7 +66,7 @@ static class CustomVerletParticle2D extends DwParticle2D{
       setColor(col);
     }
     else{
-      setColor(0xFF000000);
+      setColor(0xFFFFFF00);
     }
     
     

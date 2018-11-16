@@ -107,6 +107,26 @@ static public class ParticleSystem {
 
    // particles[0].setRadius(r_max*5f);
   }
+  
+    public void initParticlesSize(int ind) {
+
+    float radius = (float)Math.sqrt((size_x * size_y * PARTICLE_SCREEN_FILL_FACTOR) / PARTICLE_COUNT) * 0.5f;
+    radius = Math.max(radius, 1);
+    float rand_range = 0.5f;
+    float r_min = radius * (1.0f - rand_range);
+    float r_max = radius * (1.0f + rand_range);
+
+    CustomVerletParticle2D.MAX_RAD = r_max;
+    papplet.randomSeed(0);
+    //for (int i = 0; i < PARTICLE_COUNT; i++) {
+      float pr = papplet.random(r_min, r_max);
+      passRadius = pr;
+      particles[ind].setRadius(pr);
+      particles[ind].setMass(r_max*r_max/(pr*pr) );
+   // }
+
+   // particles[0].setRadius(r_max*5f);
+  }
 
   public void initParticlesPosition() {
     papplet.randomSeed(0);

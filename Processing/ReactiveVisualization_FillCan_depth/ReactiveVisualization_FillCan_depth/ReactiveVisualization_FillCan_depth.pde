@@ -607,6 +607,8 @@ int skeletonNum;
 
 int depthPointCount;
 PVector[] depthPoint;
+PVector[] prevDepthPoint;
+PVector[] currentDepthPoint;
 /* incoming osc message are forwarded to the oscEvent method. */
 void oscEvent(OscMessage theOscMessage) {
   //print("### received an osc message.");
@@ -707,24 +709,36 @@ void oscEvent(OscMessage theOscMessage) {
       return;
     }  
   } 
-  println("### received an osc message. with address pattern "+theOscMessage.addrPattern());
+  
   */
- 
+println("### received an osc message. with address pattern "+theOscMessage.addrPattern());
  //depth
  if (theOscMessage.checkAddrPattern("/num") == true){
    depthPointCount = theOscMessage.get(0).intValue();
-   //println(depthPointCount);
+   println(depthPointCount);
      
    
  }
+ prevDepthPoint = depthPoint;
  depthPoint = new PVector[]{};
  depthPoint = new PVector[depthPointCount];
- println(depthPoint.length);
+ 
+ //remove some prev opoint
+ //if (depthPointCount < prevDepthPoint.length){
+ //    int n = prevDepthPoint.length - depthPointCount;
+ //    for (int k = 0; k < n; k++){
+ //     prevDepthPoint = shorten(prevDepthPoint);
+ //    }
+   
+ //}
+ 
+ //println(depthPoint.length);
  //depthPoint = new PVector[depthPointCount];
  if (theOscMessage.checkAddrPattern("/depth") == true){
      for (int i = 0; i < depthPointCount; i++){
         depthPoint[i] = new PVector(theOscMessage.get(i*2).floatValue(), theOscMessage.get(i*2+1).floatValue());;
-        println(depthPoint[i].y*width);
+        //println(depthPoint[i].y);
+        
      }
  }
  drawDepthPoint();
@@ -733,8 +747,37 @@ void oscEvent(OscMessage theOscMessage) {
 
 void drawDepthPoint(){
   for (int i = 0; i < depthPointCount; i++){
-    if (depthPoint[i].x > 1 || depthPoint[i].y > 1) break;
-   particlesystem.particles[i].setPosition(width*depthPoint[i].x - 1200, height*depthPoint[i].y+200); 
-  }
+    //if (depthPoint[i].x <1 && depthPoint[i].y < 1){
+      float[] pos = {width*depthPoint[i].x, height*depthPoint[i].y};
+      
+           //particlesystem.particles[i].moveTo(pos, 0.3f);
+           particlesystem.particles[i].setPosition(width*depthPoint[i].x, height*depthPoint[i].y);
+           float px = particlesystem.particles[i].px;
+           float py = particlesystem.particles[i].py;
+           float cx = particlesystem.particles[i].cx;
+           float cy = particlesystem.particles[i].cy;
+           float d = dist(px, py, cx, cy);
+        if (d >10){
+         particlesystem.particles[i].setRadius(15);
+         particlesystem.particles[i].isOccupied = true;
+          println("enterif" + frameCount);
+        }
+        
+      
+      else{
+         particlesystem.initParticlesSize(i);
+         particlesystem.particles[i].isOccupied = false;
+          //println("idx      " + i + "occ" + particlesystem.particles[i].isOccupied + "    frameCount      " + frameCount);
+          println("enterelse" + frameCount);
+          //println("idx     "  + i + "       pos       " + particlesystem.particles[i].cx);
+      }
+      
+     
+    }
+  //}
+  //for ( int j = depthPointCount; j < particlesystem.particles.length; j++){
+  //  particlesystem.particles[j].isOccupied = false;
+  //  particlesystem.particles[j].setRadius(particlesystem.passRadius);
+  //}
   
 }
